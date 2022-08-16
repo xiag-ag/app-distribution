@@ -1,0 +1,31 @@
+<phpunit bootstrap="../../src/inc/bootstrap.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         forceCoversAnnotation="false"
+         processIsolation="false"
+         stopOnError="true"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         cacheResult="false"
+         >
+
+    <php>
+        <const name="TESTS_IN_PROGRESS" value="1"/>
+    </php>
+
+    <testsuites>
+        <testsuite name="unit">
+            <directory>./</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">../../src</directory>
+        </whitelist>
+    </filter>
+
+</phpunit>

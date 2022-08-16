@@ -1,0 +1,17 @@
+<div>
+    <h1>Knowing the UDID of my iOS device</h1>
+    <p>UDID: {{ UDID }}</p>
+    <p>Device product: {{ DEVICE_PRODUCT }}</p>
+    <p>System version: {{ DEVICE_VERSION }}</p>
+
+    <p>Step 2: Send the information by email:</p>
+    <p>
+        {% if developer is empty %}
+            <a href="mailto:address@company.mail?subject={{ subject }}&body={{ body }}">
+        {% else %}
+            <a href="mailto:{{ developer }}?subject={{ subject }}&body={{ body }}">
+        {% endif %}
+                Send to iOS developers
+            </a>
+    </p>
+</div>

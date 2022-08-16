@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+    {% if title is empty %}
+        <title>📲 Applications Distribution Tools</title>
+    {% else %}
+        <title>📲 {{ title }} - Applications Distribution Tools</title>
+    {% endif %}
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="author" content="XIAG AG" />
+    <style>
+        .clickable a {
+            color: inherit;
+        }
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="/global.js"></script>
+    {% include 'sentry_script.twig' %}
+</head>
+<body>
+<div class="container">
+    {% for group in apps %}
+    {% for app in group.apps %}
+    <div class="application p-3">
+        <div class="name alert alert-secondary">
+            <h2 class="clickable"><a href="/{{ group.groupName }}/{{ app.name }}">{{ app.name }}</a></h2>
+            <small class="clickable"><a href="/{{ group.groupName }}">group: {{ group.groupName }}</a></small>
+        </div>
+        <div class="text small">
+            {% apply markdown_to_html %}{{ app.description }}{% endapply %}
+        </div>
+
+        <div class="versions">
+            {% for version in app.versions %}
+            <div class="border rounded p-3 m-2">
+                <div class="text-danger">
+                    <strong class="clickable">
+                        <a href="/{{ group.groupName }}/{{ app.name }}/{{ version.number }}">Version: {{ version.number }}</a>
+                    </strong>
+                </div>
+                <div class="text small">
+                    {% apply markdown_to_html %}{{ version.description|descr_middleware }}{% endapply %}
+                </div>
+
+                <div class="download">
+                    {% if version.type is defined %}
+                        {% set link = "https://#{domain}/apps/#{group.groupName}/#{app.name}/#{version.number}/#{version.link}" %}
+                        {% if version.type == 'ios' %}
+                            <a href="itms-services://?action=download-manifest&url={{ link }}"
+                               class="btn btn-success btn-sm">Install</a>
+                        {% else %}
+                            <a href="{{ link }}" class="btn btn-success btn-sm">Install</a>
+                        {% endif %}
+                    {% else %}
+                        Can't find file to downloads
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if isGroupPage %}
+            {% set allVersionsLink = "https://#{domain}/#{group.groupName}/#{app.name}" %}
+            <button class="btn btn-link" onclick="location.href='{{ allVersionsLink }}';">Show all versions</button>
+        {% endif %}
+
+    </div>
+    {% endfor %}
+    {% endfor %}
+</div>
+</body>
+</html>

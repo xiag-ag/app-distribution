@@ -1,0 +1,46 @@
+{
+    "name": "xiag/app-distribution-tool",
+    "description": "App Distribution Tool",
+    "require": {
+        "php" : "^7.3",
+        "ext-json": "*",
+        "ext-xml": "*",
+        "twig/twig": "^3.0",
+        "twig/markdown-extra": "*",
+        "erusev/parsedown": "^1.7",
+        "monolog/monolog": "^2.0",
+        "slim/slim": "^4.5",
+        "slim/psr7": "^1.0",
+        "php-di/slim-bridge": "^3.0",
+        "sentry/sdk": "^2.1"
+    },
+    "require-dev": {
+        "mikey179/vfsstream": "^1.6",
+        "phpunit/phpunit": "^9.1",
+        "mockery/mockery": "^1.4"
+    },
+    "authors": [
+        {
+            "name": "Vladislav Malakhin",
+            "email": "vmalakhin@xiag.ch"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "src/config/middleware.php"
+        ],
+        "psr-4": {
+            "AppDistributionTool\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AppDistributionTool\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "rm -f /var/www/tool/cache/apps.json"
+        ]
+    }
+}

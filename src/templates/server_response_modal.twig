@@ -1,0 +1,45 @@
+<div class="modal fade" id="modal-info" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Info</h4>
+            </div>
+            <div class="modal-body">
+                <div id="alert-div" class="alert" role="alert">
+                    <p id="server-response"></p>
+                    <div id="errors-div"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let showServerResponseModal = (serverResponse, errors = []) => {
+        let alertDiv = $('#alert-div');
+        let errorsDiv = $('#errors-div');
+
+        errorsDiv.empty();
+        $('#server-response').html(serverResponse);
+
+        if (typeof errors !== 'undefined' && errors.length > 0) {
+            alertDiv.removeClass('alert-success');
+            alertDiv.addClass('alert-danger');
+        } else {
+            alertDiv.removeClass('alert-danger');
+            alertDiv.addClass('alert-success');
+        }
+
+        errors.forEach((error) => {
+            let option = document.createElement('p');
+            option.innerHTML = '* ' + error;
+
+            errorsDiv.append(option);
+        });
+
+        $("#modal-info").modal('show');
+    }
+</script>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>📲 Upload - Applications Distribution Tools</title>
+    <meta name="keywords" content="" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="/global.js?v=20201214"></script>
+
+    {% include 'sentry_script.twig' %}
+</head>
+<body>
+{% include 'spinner.twig' %}
+
+<div class="container">
+    {% include 'server_response_modal.twig' %}
+
+    <h4 class="alert alert-info text-center">Please, fill the following fields:</h4>
+
+    <form id="upload-form" class="form">
+       <div class="form-group alert alert-secondary">
+           <h5>Group<i style="color: red">*</i>:</h5>
+            <select id="group-selector" name="group" class="custom-select" required>
+                <option selected value>-- Select group --</option>
+                {% for group in apps %}
+                    <option value="{{ group.groupName }}">{{ group.groupName }}</option>
+                {% endfor %}
+            </select>
+
+           <div class="input-group">
+               <input type="text" id="group-input" class="form-control custom-input" placeholder="Enter group name here to create a new one">
+               <div class="input-group-append">
+                   <button id="group-add-button" class="btn btn-outline-secondary" type="button">Add to selector</button>
+               </div>
+           </div>
+       </div>
+
+        <div class="form-group alert alert-secondary">
+            <h5>App<i style="color: red">*</i>:</h5>
+            <select id="app-selector" name="app" class="custom-select" required>
+                <option selected value>-- Select app --</option>
+            </select>
+
+            <div class="input-group">
+                <input type="text" id="app-input" class="form-control custom-input" placeholder="Enter app name here to create a new one">
+                <div class="input-group-append">
+                    <button id="app-add-button" class="btn btn-outline-secondary input-group-btn" type="button">Add to selector</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group alert alert-secondary">
+            <h5 id="file-header">File to upload<i style="color: red">*</i>:</h5>
+            <div class="custom-file">
+                <input type="file" name="file" class="custom-file-input" id="file-input" required>
+                <label id="file-input-label" class="custom-file-label" for="customFile">Click here to choose file</label>
+            </div>
+        </div>
+
+        <div class="form-group alert alert-secondary">
+            <h5>Release identifiers<i style="color: red">*</i>:</h5>
+            <div class="input-group">
+                <input type="text" id="app-version-input" name="version" class="form-control custom-input" placeholder="App version" required>
+                <input type="text" id="bundle-id-input" name="bundle" class="form-control custom-input" placeholder="Bundle id (required for .ipa)">
+                <input type="text" id="title-input" name="title" class="form-control custom-input" placeholder="Title (required for .ipa)">
+            </div>
+        </div>
+
+        <div class="form-group alert alert-secondary">
+            <h5>Release notes:</h5>
+            <textarea class="form-control" id="release-notes-textarea" name="info" rows="4"></textarea>
+        </div>
+
+        <button class="btn btn-info form-control" type="submit">Upload to server</button>
+    </form>
+
+</div>
+
+<script>
+    let apps = {{ apps|json_encode()|raw }};
+
+    let groupInput     = document.getElementById("group-input");
+    let groupSelector  = document.getElementById("group-selector");
+    let groupAddButton = document.getElementById("group-add-button");
+    let appInput       = document.getElementById("app-input");
+    let appSelector    = document.getElementById("app-selector");
+    let appAddButton   = document.getElementById("app-add-button");
+    let fileInput      = document.getElementById("file-input");
+    let fileInputLabel = document.getElementById("file-input-label");
+    let bundleIdInput  = document.getElementById("bundle-id-input");
+    let titleInput     = document.getElementById("title-input");
+    let versionInput   = document.getElementById("app-version-input");
+
+    let addOption = (element, optionValue) => {
+        let option = document.createElement('option');
+        option.value = option.innerHTML = optionValue;
+
+        element.appendChild(option);
+    };
+
+    groupAddButton.addEventListener("click", () => {
+        if (groupInput.value) {
+            addOption(groupSelector, groupInput.value);
+            groupInput.value = '';
+        }
+    });
+
+    appAddButton.addEventListener("click", () => {
+        if (appInput.value) {
+            addOption(appSelector, appInput.value);
+            appInput.value = '';
+        }
+    });
+
+    groupSelector.addEventListener("change", (event) => {
+        let groupData = apps[event.currentTarget.value];
+
+        for (let [key, option] of Object.entries(appSelector.options)) {
+            if (option.value !== '') {
+                option.remove();
+            }
+        }
+
+        if (groupData) {
+            for (let [key, app] of Object.entries(groupData['apps'])) {
+                addOption(appSelector, app.name);
+            }
+        }
+    });
+
+    fileInput.addEventListener("change", (event) => {
+        let pathParts = event.target.value.split('\\');
+        let matches   = event.target.value.match(/\.[^.]*$/);
+        let required  = matches && matches[0] === '.ipa';
+
+        fileInputLabel.textContent = 'Selected file: ' + pathParts[pathParts.length - 1]
+            + '. Click here to choose another file';
+
+        bundleIdInput.required = required;
+        titleInput.required    = required;
+    });
+
+    document.getElementById('upload-form').addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        let form = $(event.currentTarget)[0];
+        let url = '/' + groupSelector.value + '/' + appSelector.value + '/' + versionInput.value;
+
+        sendAJAX('/upload', new FormData(form), function(response) {
+            if (response.code === 201) {
+                form.reset();
+                window.location = url;
+            } else {
+                showServerResponseModal(
+                    "The following errors occurred while trying to upload a file to the server:", response.result
+                );
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% if sentryLogging %}
+    <script
+            src="https://browser.sentry-cdn.com/5.16.0/bundle.min.js"
+            integrity="sha384-8XeHBuZ2XhMbhyH74W/+6MLGL3PfryfC87kUgxZXJ/z3cUmSETfEZLMo4CPVxh1r"
+            crossorigin="anonymous">
+    </script>
+    <script type="text/javascript">
+        (function() {
+            Sentry.init({
+                dsn: '{{ sentryFrontendDSN }}',
+                environment: '{{ identity }}'
+            });
+
+            if ('{{ username }}') {
+                Sentry.configureScope(function(scope) {
+                    scope.setUser({username: '{{ username }}'});
+                });
+            }
+        })();
+    </script>
+{% endif %}
