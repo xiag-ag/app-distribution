@@ -8,6 +8,6 @@ services:
     volumes:
       - "./apps:/var/www/html/apps"
     environment:
-      - APP_HOST=localhost
+      - APP_HOST=localhost:8999
       - DEVELOPER_EMAIL=aleksey@company.name
       - DEBUG=true

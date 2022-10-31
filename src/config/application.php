@@ -1,7 +1,8 @@
 <?php
 
 return [
-  "appHost" => getenv("APP_HOST") ?: "localhost",
+  "appHost" => getenv("APP_HOST") ?: "localhost:8999",
+  "organization" => getenv("ORGANIZATION") ?: "mycompany",
   "debug" => getenv("DEBUG") ?: false,
   "developer" => getenv("DEVELOPER_EMAIL") ?: "developer_name@company.name",
   "logFile" => getenv("LOG_FILE") ?: "/proc/self/fd/2",

@@ -3,6 +3,9 @@
 namespace AppDistributionTool\Tests\unit\Controller;
 
 use AppDistributionTool\Controller\UdidController;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
+use org\bovigo\vfs\vfsStreamFile;
 use Psr\Http\Message\StreamInterface;
 
 /**
@@ -16,14 +19,21 @@ class UdidControllerTest extends AbstractAppControllerTestClass
      */
     protected $udidController;
 
+    /**
+     * @var vfsStreamDirectory
+     */
+    protected $vfs;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->vfs = vfsStream::setup();
+
         $this->udidController = new UdidController(
             $this->twigMock,
             $this->appLoaderMock,
-            $this->appsDir,
+            $this->vfs->url(),
             $this->cacheManagerMock,
             [],
             $this->loggerMock
@@ -119,6 +129,9 @@ TEXT;
 
     public function testGetAction()
     {
+        $configFile = new vfsStreamFile('udid.mobileconfig');
+        $this->vfs->addChild($configFile);
+
         $content = 'content';
         $streamInterfaceMock = $this->createMock(StreamInterface::class);
 
@@ -133,5 +146,17 @@ TEXT;
             $this->responseMock,
             $this->udidController->getAction($this->requestMock, $this->responseMock)
         );
+    }
+
+    public function testGenerateUdidMobileConfig()
+    {
+        $this->twigMock->expects($this->at(0))->method('render')
+            ->with('udid_config.twig', ['appHost' => null, 'organization' => null]);
+
+        self::assertFalse($this->vfs->hasChild('udid.mobileconfig'));
+
+        $this->udidController->getAction($this->requestMock, $this->responseMock);
+
+        self::assertTrue($this->vfs->hasChild('udid.mobileconfig'));
     }
 }
