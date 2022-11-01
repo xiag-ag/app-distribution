@@ -151,7 +151,7 @@ TEXT;
     public function testGenerateUdidMobileConfig()
     {
         $this->twigMock->expects($this->at(0))->method('render')
-            ->with('udid_config.twig', ['appHost' => null, 'organization' => null]);
+            ->with('udid_config.twig', ['appHost' => null, 'organization' => null, 'uuid' => null]);
 
         self::assertFalse($this->vfs->hasChild('udid.mobileconfig'));
 

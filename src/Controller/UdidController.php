@@ -151,6 +151,7 @@ TEXT;
         $config = $this->environment->render('udid_config.twig', [
             'appHost' => $this->configuration['appHost'],
             'organization' => $this->configuration['organization'],
+            'uuid' => $this->configuration['uuid']
         ]);
 
         file_put_contents($this->appsDirectory . '/udid.mobileconfig', $config);
