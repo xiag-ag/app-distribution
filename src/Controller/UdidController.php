@@ -83,6 +83,10 @@ TEXT;
      */
     public function getAction(Request $request, Response $response): Response
     {
+        if (!file_exists($this->appsDirectory . '/udid.mobileconfig')) {
+            $this->generateUdidMobileConfig();
+        }
+
         $response->getBody()->write($this->environment->render('pages/udid/index.twig', [
             'stepTemplate' => 'pages/udid/_step1.twig',
         ]));
@@ -134,5 +138,22 @@ TEXT;
         }
 
         return $params;
+    }
+
+    /**
+     * @return void
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     */
+    private function generateUdidMobileConfig(): void
+    {
+        $config = $this->environment->render('udid_config.twig', [
+            'appHost' => $this->configuration['appHost'],
+            'organization' => $this->configuration['organization'],
+            'uuid' => $this->configuration['uuid']
+        ]);
+
+        file_put_contents($this->appsDirectory . '/udid.mobileconfig', $config);
     }
 }
